@@ -3,8 +3,8 @@
 #
 provider "aws" {
   region = local.region
-  access_key = "put your key here"
-  secret_key = "put your key here"
+  access_key = "small"
+  secret_key = "beer"
 }
 
 #
@@ -388,7 +388,7 @@ resource "aws_instance" "firewall" {
     Name = "sslo-lab-firewall"
   }
   network_interface {
-    network_interface_id      = "${aws_network_interface.sslo-lab-firewall-mgmt.id}"
+    network_interface_id      = aws_network_interface.sslo-lab-firewall-mgmt.id
     device_index              = 0
   }
 }
