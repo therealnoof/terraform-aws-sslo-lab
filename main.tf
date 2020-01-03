@@ -1,13 +1,12 @@
 #
 # Provider Declared
 #
+
 provider "aws" {
-  region = local.region
-  access_key = "small"
-  secret_key = "beer"
+  region                  = "us-gov-west-1"
+  shared_credentials_file = "./credentials"
 }
 
-#
 # Create a random id
 #
 resource "random_id" "id" {
@@ -26,9 +25,8 @@ module "vpc" {
 
   name                 = format("%s-vpc-%s", local.prefix, random_id.id.hex)
   cidr                 = local.cidr
-  azs                  = local.azs
+  azs                  = ["us-gov-west-1a"]
   enable_nat_gateway   = true
-  
 }
 
 #
@@ -213,6 +211,7 @@ resource "aws_subnet" "bigip-internal-to-webserver" {
 # Create Managment Network Interface for BIG-IP
 #
 resource "aws_network_interface" "sslo-lab-jumpbox-to-mgmt" {
+  count                 = var.bigip_count
   subnet_id             = "${aws_subnet.jumpbox-to-mgmt.id}"
   security_groups       = ["${aws_security_group.jumpbox_to_mgmt.id}","${aws_security_group.bigip_to_internal_webserver.id}" ]
   tags = {
@@ -298,29 +297,37 @@ resource "aws_security_group" "jumpbox_to_mgmt" {
 }
 
 #
+# Create Random Student ID up to 20
+#
+resource "random_integer" "student_number" {
+  min                         = 1
+  max                         = 20
+}
+
+#
 # Create BIG-IP
 #
 resource "aws_instance" "bigip" {
 
-  count                       = 1
+  count                       = var.bigip_count
   ami                         = "ami-14520975"  
   instance_type               = "m4.4xlarge"
   key_name                    = var.ec2_key_name  
   availability_zone           = "us-gov-west-1a"
   depends_on                  = ["aws_internet_gateway.sslo-lab-igw"]
   tags = {
-    Name = "sslo-lab-bigip"
+    Name = "sslo-lab-bigip,${random_integer.student_number.result}"
   }
-  network_interface {
-    network_interface_id      = "${aws_network_interface.sslo-lab-jumpbox-to-mgmt.id}"
-    device_index              = 0
-  }
-  network_interface {
-    network_interface_id      = "${aws_network_interface.sslo-lab-bigip-interal-to-webserver.id}"
-    device_index              = 3
+  # set the mgmt interface 
+  dynamic "network_interface" {
+    for_each = toset([aws_network_interface.sslo-lab-jumpbox-to-mgmt[count.index].id])
+
+    content {
+      network_interface_id = network_interface.value
+      device_index         = 0
+    }
   }
 }
-
 
 ############################
 # Web Server Configs Begin #
@@ -361,6 +368,31 @@ resource "aws_instance" "web-server" {
 # Palo ALto Configs Begin #
 ###########################
 
+#
+# Create Inspection Subnet out from BIG-IP to Palo 10.0.5.0/25
+#
+resource "aws_subnet" "inspection_out" {
+  vpc_id                = module.vpc.vpc_id
+  cidr_block            = "10.0.5.0/25"
+  availability_zone     = "us-gov-west-1a"
+  tags = {
+    Name = "sslo-lab-inspection-out"
+    Group_Name = "sslo-lab-inspection-out"
+  }
+}
+
+#
+# Create Inspection Subnet in from Palo to BIG-IP 10.0.5.128/25
+#
+resource "aws_subnet" "inspection_in" {
+  vpc_id                = module.vpc.vpc_id
+  cidr_block            = "10.0.5.128/25"
+  availability_zone     = "us-gov-west-1a"
+  tags = {
+    Name = "sslo-lab-inspection-in"
+    Group_Name = "sslo-lab-inspection-in"
+  }
+}
 
 #
 # Create External(MGMT) Network Interface for Firewall
@@ -370,6 +402,54 @@ resource "aws_network_interface" "sslo-lab-firewall-mgmt" {
   security_groups       = ["${aws_security_group.jumpbox_to_mgmt.id}"]
   tags = {
     Name = "sslo-lab-firewall-mgmt"
+  }
+}
+
+#
+# Create Inspection Zone Network Interface from BIGIP to Firewall
+#
+resource "aws_network_interface" "sslo-lab-firewall-inspection-in" {
+  subnet_id             = "${aws_subnet.inspection_out.id}"
+  security_groups       = ["${aws_security_group.inspection_zone.id}"]
+  tags = {
+    Name = "sslo-lab-firewall-firewall-inspection-in"
+  }
+}
+
+#
+# Create Inspection Zone Network Interface from Palo to BIG-IP
+#
+resource "aws_network_interface" "sslo-lab-firewall-inspection-out" {
+  subnet_id             = "${aws_subnet.inspection_in.id}"
+  security_groups       = ["${aws_security_group.inspection_zone.id}"]
+  tags = {
+    Name = "sslo-lab-firewall-firewall-inspection-out"
+  }
+}
+
+#
+# Create Security Group for Inspection Zone
+#
+resource "aws_security_group" "inspection_zone" {
+  vpc_id                = module.vpc.vpc_id
+  description           = "sslo-lab-sg-inspection_zone"
+  name                  = "sslo-lab-sg-inspection_zone"
+  tags = {
+    Name = "sslo-lab-sg-inspection_zone"
+  }
+  ingress {
+    # SSH (change to whatever ports you need)
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  egress {
+    from_port       = 0
+    to_port         = 0
+    protocol        = "-1"
+    cidr_blocks     = ["0.0.0.0/0"]
   }
 }
 
@@ -391,6 +471,14 @@ resource "aws_instance" "firewall" {
     network_interface_id      = aws_network_interface.sslo-lab-firewall-mgmt.id
     device_index              = 0
   }
+  network_interface {
+    network_interface_id      = "${aws_network_interface.sslo-lab-firewall-inspection-in.id}"
+    device_index              = 1
+  }
+  network_interface {
+    network_interface_id      = "${aws_network_interface.sslo-lab-firewall-inspection-out.id}"
+    device_index              = 2
+  }
 }
 
 #############
@@ -403,7 +491,7 @@ resource "aws_instance" "firewall" {
 locals {
   prefix            = "tf-aws-sslo-lab"
   region            = "us-gov-west-1"
-  azs               = ["us-gov-west-1a"]
+  azs               = "us-gov-west-1a"
   cidr              = "10.0.0.0/16"
   allowed_mgmt_cidr = "0.0.0.0/0"
   allowed_app_cidr  = "0.0.0.0/0"

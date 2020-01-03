@@ -1,7 +1,7 @@
 # terraform-aws-sslo-lab
 Terraform code to deploy a SSLO lab in AWS...aka Lab in a Box.
 
-##Caution, this code deploys actual AWS infrastructure, therefore this will cost money. Deploy at your own peril.##
+##Caution, this code deploys actual AWS infrastructure, therefore this will cost $, loot, ends, greenbacks...etc. Deploy at your own peril.##
 
 This IaC supports a L3 Reverse Proxy Inbound SSLO topology.
 
