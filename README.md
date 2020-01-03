@@ -9,6 +9,8 @@ AWS Provider version supported = v2.43.0
 
 You will need to provide your access key and secret in order to connect to AWS.
 These values are located at the top of the main.tf file.
+If you need to create an access/secret then follow the below link.
+https://docs.aws.amazon.com/general/latest/gr/aws-sec-cred-types.html
 
 provider "aws" {
   region = local.region
