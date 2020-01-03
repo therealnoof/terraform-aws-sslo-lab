@@ -3,8 +3,8 @@
 #
 provider "aws" {
   region = local.region
-  access_key = "AKIAWX4W2N4FKWTIVAN4"
-  secret_key = "UWyr6FZGC31n3uMokdVuziaGt7o4BUpmyQbHUW4n"
+  access_key = "put your key here"
+  secret_key = "put your key here"
 }
 
 #
