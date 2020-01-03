@@ -4,6 +4,7 @@ Terraform code to deploy a SSLO lab in AWS...aka Lab in a Box.
 This IaC supports a L3 Reverse Proxy Inbound SSLO topology.
 
 Terraform Version supported = Terraform v0.12.9
+
 AWS Provider version supported = v2.43.0
 
 You will need to provide your access key and secret in order to connect to AWS.
