@@ -7,3 +7,8 @@ variable "ec2_key_name" {
   type        = string
 }
 
+variable "bigip_count" {
+  description = "How many BIG-IPs should we deploy"
+  type        = string
+}
+
