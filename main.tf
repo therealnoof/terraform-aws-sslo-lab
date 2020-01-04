@@ -7,6 +7,7 @@ provider "aws" {
   shared_credentials_file = "./credentials"
 }
 
+#
 # Create a random id
 #
 resource "random_id" "id" {
@@ -99,24 +100,48 @@ resource "aws_subnet" "jumpbox" {
 }
 
 #
+# Create Internal Subnet for Jumpbox to BIGIP External VIPS
+#
+resource "aws_subnet" "jumpbox-internal-to-bigip-vips" {
+  vpc_id                = module.vpc.vpc_id
+  cidr_block            = "10.0.4.0/24"
+  availability_zone     = "us-gov-west-1a"
+  tags = {
+    Name = "sslo-lab-jumpbox-internal-to-bigip-vips"
+    Group_Name = "sslo-lab-jumpbox-internal-to-bigip-vips"
+  }
+}
+
+#
 # Create External(MGMT) Network Interface for Jumpbox
 #
 resource "aws_network_interface" "sslo-lab-jumpbox-external" {
   subnet_id             = "${aws_subnet.jumpbox.id}"
-  security_groups       = ["${aws_security_group.jumpbox_external.id}", "${aws_security_group.jumpbox_to_mgmt.id}"]
+  security_groups       = ["${aws_security_group.jumpbox_external.id}", "${aws_security_group.jumpbox_to_mgmt.id}", "${aws_security_group.jumpbox_to_bigip_vips.id}"]
   tags = {
     Name = "sslo-lab-external-interface-jumpbox"
   }
 }
 
 #
-# Create Internal Network (2nd)Interface to access BIGIP MGMT for Jumbbox
+# Create Internal Network (1st)Interface to access BIGIP MGMT for Jumbbox
 #
 resource "aws_network_interface" "sslo-lab-jumpbox-to-BIGIP-mgmt" {
   subnet_id             = "${aws_subnet.jumpbox-to-mgmt.id}"
   security_groups       = ["${aws_security_group.jumpbox_to_mgmt.id}"] 
   tags = {
     Name = "sslo-lab-jumpbox-to-mgmt"
+  }
+}
+
+#
+# Create Internal Network (2nd)Interface to access BIGIP vips
+#
+resource "aws_network_interface" "sslo-lab-jumpbox-to-BIGIP-vips" {
+  subnet_id             = "${aws_subnet.jumpbox-internal-to-bigip-vips.id}"
+  security_groups       = ["${aws_security_group.jumpbox_to_bigip_vips.id}"] 
+  tags = {
+    Name = "sslo-lab-jumpbox-to-bigip-vips"
   }
 }
 
@@ -147,6 +172,31 @@ resource "aws_security_group" "jumpbox_external" {
 }
 
 #
+# Create Security Group for Jumpbox to BIG-IP Vips
+#
+resource "aws_security_group" "jumpbox_to_bigip_vips" {
+  vpc_id                = module.vpc.vpc_id
+  description           = "sslo-lab-sg-jumpbox-to-bigip-vips"
+  name                  = "sslo-lab-sg-jumpbox-to-bigip-vips"
+  tags = {
+    Name = "sslo-lab-sg-jumpbox-to-bigip-vips"
+  }
+  ingress {
+    # RDP (change to whatever ports you need)
+    from_port   = 443
+    to_port     = 443
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  egress {
+    from_port       = 0
+    to_port         = 0
+    protocol        = "-1"
+    cidr_blocks     = ["0.0.0.0/0"]
+  }
+}
+#
 # Create EIP Association
 #
 resource "aws_eip_association" "eip" {
@@ -174,6 +224,10 @@ resource "aws_instance" "jumpbox" {
   network_interface {
     network_interface_id      = "${aws_network_interface.sslo-lab-jumpbox-external.id}"
     device_index              = 0
+  }
+  network_interface {
+    network_interface_id      = "${aws_network_interface.sslo-lab-jumpbox-to-BIGIP-vips.id}"
+    device_index              = 2
   }
 }
 
@@ -208,7 +262,7 @@ resource "aws_subnet" "bigip-internal-to-webserver" {
 }
 
 #
-# Create Managment Network Interface for BIG-IP
+# Create Management Network Interface for BIG-IP
 #
 resource "aws_network_interface" "sslo-lab-jumpbox-to-mgmt" {
   count                 = var.bigip_count
@@ -220,13 +274,51 @@ resource "aws_network_interface" "sslo-lab-jumpbox-to-mgmt" {
 }
 
 #
+# Create External Network Interface for BIG-IP Vips
+#
+resource "aws_network_interface" "sslo-lab-bigip-external-vips" {
+  count                 = var.bigip_count
+  subnet_id             = "${aws_subnet.jumpbox-internal-to-bigip-vips.id}"
+  security_groups       = ["${aws_security_group.jumpbox_to_bigip_vips.id}"]
+  tags = {
+    Name = "sslo-lab-bigip-external-vips"
+  }
+}
+
+#
 # Create Internal Network Interface for BIG-IP
 #
 resource "aws_network_interface" "sslo-lab-bigip-interal-to-webserver" {
+  count                 = var.bigip_count
   subnet_id             = "${aws_subnet.bigip-internal-to-webserver.id}"
   security_groups       = ["${aws_security_group.bigip_to_internal_webserver.id}"]
   tags = {
     Name = "sslo-lab-bigip-to-internal-webserver"
+  }
+}
+
+
+#
+# Create Inspection Zone Network Interface from BIGIP to Firewall
+#
+resource "aws_network_interface" "sslo-lab-bigip-inspection-out" {
+  count                 = var.bigip_count
+  subnet_id             = "${aws_subnet.inspection_out.id}"
+  security_groups       = ["${aws_security_group.inspection_zone.id}"]
+  tags = {
+    Name = "sslo-lab-firewall-bigip-inspection-out"
+  }
+}
+
+#
+# Create Inspection Zone Network Interface from Firewall to BIGIP
+#
+resource "aws_network_interface" "sslo-lab-bigip-inspection-in" {
+  count                 = var.bigip_count
+  subnet_id             = "${aws_subnet.inspection_in.id}"
+  security_groups       = ["${aws_security_group.inspection_zone.id}"]
+  tags = {
+    Name = "sslo-lab-firewall-bigip-inspection-in"
   }
 }
 
@@ -327,6 +419,46 @@ resource "aws_instance" "bigip" {
       device_index         = 0
     }
   }
+
+  # set the external interface 
+  dynamic "network_interface" {
+    for_each = toset([aws_network_interface.sslo-lab-bigip-external-vips[count.index].id])
+
+    content {
+      network_interface_id = network_interface.value
+      device_index         = 1
+    }
+  }
+
+  # set the internal interface 
+  dynamic "network_interface" {
+    for_each = toset([aws_network_interface.sslo-lab-bigip-interal-to-webserver[count.index].id])
+
+    content {
+      network_interface_id = network_interface.value
+      device_index         = 2
+    }
+  }
+
+  # set the inspection zone (out to firewall) interface 
+  dynamic "network_interface" {
+    for_each = toset([aws_network_interface.sslo-lab-bigip-inspection-out[count.index].id])
+
+    content {
+      network_interface_id = network_interface.value
+      device_index         = 3
+    }
+  }
+
+  # set the inspection zone (in from firewall) interface 
+  dynamic "network_interface" {
+    for_each = toset([aws_network_interface.sslo-lab-bigip-inspection-in[count.index].id])
+
+    content {
+      network_interface_id = network_interface.value
+      device_index         = 4
+    }
+  }
 }
 
 ############################
@@ -334,7 +466,7 @@ resource "aws_instance" "bigip" {
 ############################
 
 #
-#
+# Create the Network Interface for the WebServer
 #
 resource "aws_network_interface" "sslo-lab-webserver" {
   subnet_id             = "${aws_subnet.bigip-internal-to-webserver.id}"
@@ -468,7 +600,7 @@ resource "aws_instance" "firewall" {
     Name = "sslo-lab-firewall"
   }
   network_interface {
-    network_interface_id      = aws_network_interface.sslo-lab-firewall-mgmt.id
+    network_interface_id      = "${aws_network_interface.sslo-lab-firewall-mgmt.id}"
     device_index              = 0
   }
   network_interface {
