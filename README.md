@@ -10,20 +10,18 @@ Terraform Version supported = Terraform v0.12.9
 AWS Provider version supported = v2.43.0
 
 You will need to provide your access key and secret in order to connect to AWS.
-These values are located at the top of the main.tf file.
-If you need to create an access/secret then follow the below link.
-https://docs.aws.amazon.com/general/latest/gr/aws-sec-cred-types.html
+It is recommended to place your tokens in a separate file and call them in main.tf
+See this file link for help.
+https://www.terraform.io/docs/providers/aws/index.html
 
 provider "aws" {
-  region = local.region
-  access_key = ""
-  secret_key = ""
+  region = "${var.region}"
+  shared_credentials_file = "~/.aws/credentials"
 }
-
-It is not recommended to place credentials hard coded into any Terraform file therefore, using a credentials file or better yet would be to use AWS secrets manager.
 
 This template uses AWS Gov region and custom AMI's for the Jumpbox and Firewall.
 If you need to use a different region then replace the regions in the main.tf
+There are variables in the variable.tf set for the availability zones.
 
 The jumpbox is a Windows Server 2019 box with RDS and ADDS roles installed.  This allows for the creation of unlimited AD users and more importantly RDS users.  This allows for a single jump box.
 
