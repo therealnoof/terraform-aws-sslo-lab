@@ -26,7 +26,7 @@ module "vpc" {
 
   name                 = format("%s-vpc-%s", local.prefix, random_id.id.hex)
   cidr                 = local.cidr
-  azs                  = ["us-gov-west-1a"]
+  azs                  = ["${var.az}"]
   enable_nat_gateway   = true
 }
 
@@ -92,7 +92,7 @@ resource "aws_internet_gateway" "sslo-lab-igw" {
 resource "aws_subnet" "jumpbox" {
   vpc_id                = module.vpc.vpc_id
   cidr_block            = "10.0.1.0/24"
-  availability_zone     = "us-gov-west-1a"
+  availability_zone     = "${var.az}"
   tags = {
     Name = "sslo-lab-jumpbox"
     Group_Name = "sslo-lab-jumpbox"
@@ -105,7 +105,7 @@ resource "aws_subnet" "jumpbox" {
 resource "aws_subnet" "jumpbox-internal-to-bigip-vips" {
   vpc_id                = module.vpc.vpc_id
   cidr_block            = "10.0.4.0/24"
-  availability_zone     = "us-gov-west-1a"
+  availability_zone     = "${var.az}"
   tags = {
     Name = "sslo-lab-jumpbox-internal-to-bigip-vips"
     Group_Name = "sslo-lab-jumpbox-internal-to-bigip-vips"
@@ -212,7 +212,7 @@ resource "aws_instance" "jumpbox" {
   ami                         = "ami-bc89acdd"  
   instance_type               = "m4.xlarge"
   key_name                    = var.ec2_key_name  
-  availability_zone           = "us-gov-west-1a"
+  availability_zone           = "${var.az}"
   depends_on                  = ["aws_internet_gateway.sslo-lab-igw"]
   tags = {
     Name = "sslo-lab-jumpbox"
@@ -241,7 +241,7 @@ resource "aws_instance" "jumpbox" {
 resource "aws_subnet" "jumpbox-to-mgmt" {
   vpc_id                = module.vpc.vpc_id
   cidr_block            = "10.0.2.0/24"
-  availability_zone     = "us-gov-west-1a"
+  availability_zone     = "${var.az}"
   tags = {
     Name = "sslo-lab-jumpbox-to-mgmt"
     Group_Name = "sslo-lab-jumpbox-to-mgmt"
@@ -254,7 +254,7 @@ resource "aws_subnet" "jumpbox-to-mgmt" {
 resource "aws_subnet" "bigip-internal-to-webserver" {
   vpc_id                = module.vpc.vpc_id
   cidr_block            = "10.0.3.0/24"
-  availability_zone     = "us-gov-west-1a"
+  availability_zone     = "${var.az}"
   tags = {
     Name = "sslo-lab-bigip-internal-to-webserver"
     Group_Name = "sslo-lab-bigip-internal-to-webserver"
@@ -278,6 +278,7 @@ resource "aws_network_interface" "sslo-lab-jumpbox-to-mgmt" {
 #
 resource "aws_network_interface" "sslo-lab-bigip-external-vips" {
   count                 = var.bigip_count
+  private_ips_count     = "1"
   subnet_id             = "${aws_subnet.jumpbox-internal-to-bigip-vips.id}"
   security_groups       = ["${aws_security_group.jumpbox_to_bigip_vips.id}"]
   tags = {
@@ -389,14 +390,6 @@ resource "aws_security_group" "jumpbox_to_mgmt" {
 }
 
 #
-# Create Random Student ID up to 20
-#
-resource "random_integer" "student_number" {
-  min                         = 1
-  max                         = 20
-}
-
-#
 # Create BIG-IP
 #
 resource "aws_instance" "bigip" {
@@ -405,10 +398,10 @@ resource "aws_instance" "bigip" {
   ami                         = "ami-14520975"  
   instance_type               = "m4.4xlarge"
   key_name                    = var.ec2_key_name  
-  availability_zone           = "us-gov-west-1a"
+  availability_zone           = "${var.az}"
   depends_on                  = ["aws_internet_gateway.sslo-lab-igw"]
   tags = {
-    Name = "sslo-lab-bigip,${random_integer.student_number.result}"
+    Name = "sslo-lab-bigip"
   }
   # set the mgmt interface 
   dynamic "network_interface" {
@@ -469,6 +462,7 @@ resource "aws_instance" "bigip" {
 # Create the Network Interface for the WebServer
 #
 resource "aws_network_interface" "sslo-lab-webserver" {
+  private_ips            = ["10.0.3.50"]
   subnet_id             = "${aws_subnet.bigip-internal-to-webserver.id}"
   security_groups       = ["${aws_security_group.bigip_to_internal_webserver.id}"]
   tags = {
@@ -485,7 +479,7 @@ resource "aws_instance" "web-server" {
   ami                         = "ami-443f6525"  
   instance_type               = "t3a.small"
   key_name                    = var.ec2_key_name  
-  availability_zone           = "us-gov-west-1a"
+  availability_zone           = "${var.az}"
   depends_on                  = ["aws_internet_gateway.sslo-lab-igw"]
   tags = {
     Name = "sslo-lab-web-server"
@@ -506,7 +500,7 @@ resource "aws_instance" "web-server" {
 resource "aws_subnet" "inspection_out" {
   vpc_id                = module.vpc.vpc_id
   cidr_block            = "10.0.5.0/25"
-  availability_zone     = "us-gov-west-1a"
+  availability_zone     = "${var.az}"
   tags = {
     Name = "sslo-lab-inspection-out"
     Group_Name = "sslo-lab-inspection-out"
@@ -519,7 +513,7 @@ resource "aws_subnet" "inspection_out" {
 resource "aws_subnet" "inspection_in" {
   vpc_id                = module.vpc.vpc_id
   cidr_block            = "10.0.5.128/25"
-  availability_zone     = "us-gov-west-1a"
+  availability_zone     = "${var.az}"
   tags = {
     Name = "sslo-lab-inspection-in"
     Group_Name = "sslo-lab-inspection-in"
@@ -530,7 +524,8 @@ resource "aws_subnet" "inspection_in" {
 # Create External(MGMT) Network Interface for Firewall
 #
 resource "aws_network_interface" "sslo-lab-firewall-mgmt" {
-  subnet_id             = "${aws_subnet.jumpbox.id}"
+  subnet_id             = "${aws_subnet.jumpbox-to-mgmt.id}"
+  private_ips            = ["10.0.2.50"]
   security_groups       = ["${aws_security_group.jumpbox_to_mgmt.id}"]
   tags = {
     Name = "sslo-lab-firewall-mgmt"
@@ -542,6 +537,7 @@ resource "aws_network_interface" "sslo-lab-firewall-mgmt" {
 #
 resource "aws_network_interface" "sslo-lab-firewall-inspection-in" {
   subnet_id             = "${aws_subnet.inspection_out.id}"
+  private_ips            = ["10.0.5.50"]
   security_groups       = ["${aws_security_group.inspection_zone.id}"]
   tags = {
     Name = "sslo-lab-firewall-firewall-inspection-in"
@@ -553,6 +549,7 @@ resource "aws_network_interface" "sslo-lab-firewall-inspection-in" {
 #
 resource "aws_network_interface" "sslo-lab-firewall-inspection-out" {
   subnet_id             = "${aws_subnet.inspection_in.id}"
+  private_ips            = ["10.0.5.150"]
   security_groups       = ["${aws_security_group.inspection_zone.id}"]
   tags = {
     Name = "sslo-lab-firewall-firewall-inspection-out"
@@ -594,7 +591,7 @@ resource "aws_instance" "firewall" {
   ami                         = "ami-15547074"  
   instance_type               = "m4.xlarge"
   key_name                    = var.ec2_key_name  
-  availability_zone           = "us-gov-west-1a"
+  availability_zone           = "${var.az}"
   depends_on                  = ["aws_internet_gateway.sslo-lab-igw"]
   tags = {
     Name = "sslo-lab-firewall"
@@ -622,8 +619,6 @@ resource "aws_instance" "firewall" {
 #
 locals {
   prefix            = "tf-aws-sslo-lab"
-  region            = "us-gov-west-1"
-  azs               = "us-gov-west-1a"
   cidr              = "10.0.0.0/16"
   allowed_mgmt_cidr = "0.0.0.0/0"
   allowed_app_cidr  = "0.0.0.0/0"
