@@ -23,6 +23,7 @@ provider "aws" {
 
 This template uses AWS Gov region and custom AMI's for the Jumpbox and Firewall.
 If you need to use a different region then replace the regions in the main.tf
+
 There are variables in the variable.tf set for the availability zones.
 
 The jumpbox is a Windows Server 2019 box with RDS and ADDS roles installed.  This allows for the creation of unlimited AD users and more importantly RDS users.  This allows for a single jump box.
