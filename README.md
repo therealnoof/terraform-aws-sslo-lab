@@ -20,6 +20,8 @@ provider "aws" {
   secret_key = ""
 }
 
+It is not recommended to place credentials hard coded into any Terraform file therefore, using a credentials file or better yet would be to use AWS secrets manager.
+
 This template uses AWS Gov region and custom AMI's for the Jumpbox and Firewall.
 If you need to use a different region then replace the regions in the main.tf
 
