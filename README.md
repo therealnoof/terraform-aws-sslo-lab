@@ -1,6 +1,7 @@
 # terraform-aws-sslo-lab
 
 Terraform Version supported = Terraform v0.12.9
+
 AWS Provider version supported = v2.43.0
 
 Terraform code to deploy a SSLO lab in AWS...aka Lab in a Box.
