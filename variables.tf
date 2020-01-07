@@ -7,8 +7,28 @@ variable "ec2_key_name" {
   type        = string
 }
 
+#
+# Outputs to the console asking for the number of BIG-IPs/Students to deploy
+#
 variable "bigip_count" {
   description = "How many BIG-IPs should we deploy"
   type        = string
 }
 
+#
+# Region - hard coded
+#
+variable "region" {
+  description = "Set the Region"
+  type        = string
+  default     = "us-gov-west-1"
+}
+
+#
+# Availability Zone - hard coded
+#
+variable "az" {
+  description = "Set Availability Zone"
+  type        = string
+  default     = "us-gov-west-1a"
+}
