@@ -1,10 +1,9 @@
 #
 # Provider Declared
 #
-
 provider "aws" {
-  region                  = "us-gov-west-1"
-  shared_credentials_file = "./credentials"
+  region = "${var.region}"
+  shared_credentials_file = "/home/ahernandez/Terraform/.aws/credentials"
 }
 
 #
