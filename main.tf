@@ -2,8 +2,8 @@
 # Provider Declared
 #
 provider "aws" {
-  region = "${var.region}"
-  shared_credentials_file = "~.aws/credentials"
+  region = var.region
+  shared_credentials_file = "~/.aws/credentials"
 }
 
 #
@@ -590,21 +590,21 @@ resource "aws_instance" "firewall" {
   ami                         = "ami-15547074"  
   instance_type               = "m4.xlarge"
   key_name                    = var.ec2_key_name  
-  availability_zone           = "${var.az}"
-  depends_on                  = ["aws_internet_gateway.sslo-lab-igw"]
+  availability_zone           = var.az
+  depends_on                  = [aws_internet_gateway.sslo-lab-igw]
   tags = {
     Name = "sslo-lab-firewall"
   }
   network_interface {
-    network_interface_id      = "${aws_network_interface.sslo-lab-firewall-mgmt.id}"
+    network_interface_id      = aws_network_interface.sslo-lab-firewall-mgmt.id
     device_index              = 0
   }
   network_interface {
-    network_interface_id      = "${aws_network_interface.sslo-lab-firewall-inspection-in.id}"
+    network_interface_id      = aws_network_interface.sslo-lab-firewall-inspection-in.id
     device_index              = 1
   }
   network_interface {
-    network_interface_id      = "${aws_network_interface.sslo-lab-firewall-inspection-out.id}"
+    network_interface_id      = aws_network_interface.sslo-lab-firewall-inspection-out.id
     device_index              = 2
   }
 }
