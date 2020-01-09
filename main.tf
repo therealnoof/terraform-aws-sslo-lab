@@ -37,7 +37,7 @@ resource "aws_route_table" "sslo-lab-route-table" {
   
     route {
     cidr_block          = "0.0.0.0/0"
-    gateway_id          = "${aws_internet_gateway.sslo-lab-igw.id}"  
+    gateway_id          = aws_internet_gateway.sslo-lab-igw.id 
   }
   tags = {
     Name = "sslo-lab-route-table"
@@ -48,18 +48,18 @@ resource "aws_route_table" "sslo-lab-route-table" {
 # Create the Route Table associations
 #
 resource "aws_route_table_association" "sslo-lab-route-table-association" {
-  subnet_id             = "${aws_subnet.jumpbox.id}" 
-  route_table_id        = "${aws_route_table.sslo-lab-route-table.id}"
+  subnet_id             = aws_subnet.jumpbox.id
+  route_table_id        = aws_route_table.sslo-lab-route-table.id
 }
 
 resource "aws_route_table_association" "sslo-lab-route-table-association-1" {
-  subnet_id             = "${aws_subnet.jumpbox-to-mgmt.id}"
-  route_table_id        = "${aws_route_table.sslo-lab-route-table.id}"
+  subnet_id             = aws_subnet.jumpbox-to-mgmt.id
+  route_table_id        = aws_route_table.sslo-lab-route-table.id
 }
 
 resource "aws_route_table_association" "sslo-lab-route-table-association-2" {
-  subnet_id             = "${aws_subnet.bigip-internal-to-webserver.id}"
-  route_table_id        = "${aws_route_table.sslo-lab-route-table.id}"
+  subnet_id             = aws_subnet.bigip-internal-to-webserver.id
+  route_table_id        = aws_route_table.sslo-lab-route-table.id
 }
 
 #
@@ -67,7 +67,7 @@ resource "aws_route_table_association" "sslo-lab-route-table-association-2" {
 #
 resource "aws_main_route_table_association" "sslo-lab-main-route-table-association" {
   vpc_id                = module.vpc.vpc_id
-  route_table_id        = "${aws_route_table.sslo-lab-route-table.id}"
+  route_table_id        = aws_route_table.sslo-lab-route-table.id
 }
 
 
@@ -91,7 +91,7 @@ resource "aws_internet_gateway" "sslo-lab-igw" {
 resource "aws_subnet" "jumpbox" {
   vpc_id                = module.vpc.vpc_id
   cidr_block            = "10.0.1.0/24"
-  availability_zone     = "${var.az}"
+  availability_zone     = var.az
   tags = {
     Name = "sslo-lab-jumpbox"
     Group_Name = "sslo-lab-jumpbox"
@@ -104,7 +104,7 @@ resource "aws_subnet" "jumpbox" {
 resource "aws_subnet" "jumpbox-internal-to-bigip-vips" {
   vpc_id                = module.vpc.vpc_id
   cidr_block            = "10.0.4.0/24"
-  availability_zone     = "${var.az}"
+  availability_zone     = var.az
   tags = {
     Name = "sslo-lab-jumpbox-internal-to-bigip-vips"
     Group_Name = "sslo-lab-jumpbox-internal-to-bigip-vips"
@@ -115,7 +115,7 @@ resource "aws_subnet" "jumpbox-internal-to-bigip-vips" {
 # Create External(MGMT) Network Interface for Jumpbox
 #
 resource "aws_network_interface" "sslo-lab-jumpbox-external" {
-  subnet_id             = "${aws_subnet.jumpbox.id}"
+  subnet_id             = aws_subnet.jumpbox.id
   security_groups       = ["${aws_security_group.jumpbox_external.id}", "${aws_security_group.jumpbox_to_mgmt.id}", "${aws_security_group.jumpbox_to_bigip_vips.id}"]
   tags = {
     Name = "sslo-lab-external-interface-jumpbox"
@@ -126,7 +126,7 @@ resource "aws_network_interface" "sslo-lab-jumpbox-external" {
 # Create Internal Network (1st)Interface to access BIGIP MGMT for Jumbbox
 #
 resource "aws_network_interface" "sslo-lab-jumpbox-to-BIGIP-mgmt" {
-  subnet_id             = "${aws_subnet.jumpbox-to-mgmt.id}"
+  subnet_id             = aws_subnet.jumpbox-to-mgmt.id
   security_groups       = ["${aws_security_group.jumpbox_to_mgmt.id}"] 
   tags = {
     Name = "sslo-lab-jumpbox-to-mgmt"
@@ -137,7 +137,7 @@ resource "aws_network_interface" "sslo-lab-jumpbox-to-BIGIP-mgmt" {
 # Create Internal Network (2nd)Interface to access BIGIP vips
 #
 resource "aws_network_interface" "sslo-lab-jumpbox-to-BIGIP-vips" {
-  subnet_id             = "${aws_subnet.jumpbox-internal-to-bigip-vips.id}"
+  subnet_id             = aws_subnet.jumpbox-internal-to-bigip-vips.id
   security_groups       = ["${aws_security_group.jumpbox_to_bigip_vips.id}"] 
   tags = {
     Name = "sslo-lab-jumpbox-to-bigip-vips"
@@ -199,7 +199,7 @@ resource "aws_security_group" "jumpbox_to_bigip_vips" {
 # Create EIP Association
 #
 resource "aws_eip_association" "eip" {
-  network_interface_id        = "${aws_network_interface.sslo-lab-jumpbox-external.id}"
+  network_interface_id        = aws_network_interface.sslo-lab-jumpbox-external.id
   allocation_id               = "eipalloc-723ff64f"
 }
 
@@ -211,21 +211,21 @@ resource "aws_instance" "jumpbox" {
   ami                         = "ami-bc89acdd"  
   instance_type               = "m4.xlarge"
   key_name                    = var.ec2_key_name  
-  availability_zone           = "${var.az}"
-  depends_on                  = ["aws_internet_gateway.sslo-lab-igw"]
+  availability_zone           = var.az
+  depends_on                  = [aws_internet_gateway.sslo-lab-igw]
   tags = {
     Name = "sslo-lab-jumpbox"
   }
   network_interface {
-    network_interface_id      = "${aws_network_interface.sslo-lab-jumpbox-to-BIGIP-mgmt.id}"
+    network_interface_id      = aws_network_interface.sslo-lab-jumpbox-to-BIGIP-mgmt.id
     device_index              = 1
   }
   network_interface {
-    network_interface_id      = "${aws_network_interface.sslo-lab-jumpbox-external.id}"
+    network_interface_id      = aws_network_interface.sslo-lab-jumpbox-external.id
     device_index              = 0
   }
   network_interface {
-    network_interface_id      = "${aws_network_interface.sslo-lab-jumpbox-to-BIGIP-vips.id}"
+    network_interface_id      = aws_network_interface.sslo-lab-jumpbox-to-BIGIP-vips.id
     device_index              = 2
   }
 }
@@ -240,7 +240,7 @@ resource "aws_instance" "jumpbox" {
 resource "aws_subnet" "jumpbox-to-mgmt" {
   vpc_id                = module.vpc.vpc_id
   cidr_block            = "10.0.2.0/24"
-  availability_zone     = "${var.az}"
+  availability_zone     = var.az
   tags = {
     Name = "sslo-lab-jumpbox-to-mgmt"
     Group_Name = "sslo-lab-jumpbox-to-mgmt"
@@ -253,7 +253,7 @@ resource "aws_subnet" "jumpbox-to-mgmt" {
 resource "aws_subnet" "bigip-internal-to-webserver" {
   vpc_id                = module.vpc.vpc_id
   cidr_block            = "10.0.3.0/24"
-  availability_zone     = "${var.az}"
+  availability_zone     = var.az
   tags = {
     Name = "sslo-lab-bigip-internal-to-webserver"
     Group_Name = "sslo-lab-bigip-internal-to-webserver"
@@ -265,7 +265,7 @@ resource "aws_subnet" "bigip-internal-to-webserver" {
 #
 resource "aws_network_interface" "sslo-lab-jumpbox-to-mgmt" {
   count                 = var.bigip_count
-  subnet_id             = "${aws_subnet.jumpbox-to-mgmt.id}"
+  subnet_id             = aws_subnet.jumpbox-to-mgmt.id
   security_groups       = ["${aws_security_group.jumpbox_to_mgmt.id}","${aws_security_group.bigip_to_internal_webserver.id}" ]
   tags = {
     Name = "sslo-lab-jumpbox-to-mgmt-interface"
@@ -278,7 +278,7 @@ resource "aws_network_interface" "sslo-lab-jumpbox-to-mgmt" {
 resource "aws_network_interface" "sslo-lab-bigip-external-vips" {
   count                 = var.bigip_count
   private_ips_count     = "1"
-  subnet_id             = "${aws_subnet.jumpbox-internal-to-bigip-vips.id}"
+  subnet_id             = aws_subnet.jumpbox-internal-to-bigip-vips.id
   security_groups       = ["${aws_security_group.jumpbox_to_bigip_vips.id}"]
   tags = {
     Name = "sslo-lab-bigip-external-vips"
@@ -290,7 +290,7 @@ resource "aws_network_interface" "sslo-lab-bigip-external-vips" {
 #
 resource "aws_network_interface" "sslo-lab-bigip-interal-to-webserver" {
   count                 = var.bigip_count
-  subnet_id             = "${aws_subnet.bigip-internal-to-webserver.id}"
+  subnet_id             = aws_subnet.bigip-internal-to-webserver.id
   security_groups       = ["${aws_security_group.bigip_to_internal_webserver.id}"]
   tags = {
     Name = "sslo-lab-bigip-to-internal-webserver"
@@ -303,7 +303,7 @@ resource "aws_network_interface" "sslo-lab-bigip-interal-to-webserver" {
 #
 resource "aws_network_interface" "sslo-lab-bigip-inspection-out" {
   count                 = var.bigip_count
-  subnet_id             = "${aws_subnet.inspection_out.id}"
+  subnet_id             = aws_subnet.inspection_out.id
   security_groups       = ["${aws_security_group.inspection_zone.id}"]
   tags = {
     Name = "sslo-lab-firewall-bigip-inspection-out"
@@ -315,7 +315,7 @@ resource "aws_network_interface" "sslo-lab-bigip-inspection-out" {
 #
 resource "aws_network_interface" "sslo-lab-bigip-inspection-in" {
   count                 = var.bigip_count
-  subnet_id             = "${aws_subnet.inspection_in.id}"
+  subnet_id             = aws_subnet.inspection_in.id
   security_groups       = ["${aws_security_group.inspection_zone.id}"]
   tags = {
     Name = "sslo-lab-firewall-bigip-inspection-in"
@@ -397,8 +397,8 @@ resource "aws_instance" "bigip" {
   ami                         = "ami-14520975"  
   instance_type               = "m4.4xlarge"
   key_name                    = var.ec2_key_name  
-  availability_zone           = "${var.az}"
-  depends_on                  = ["aws_internet_gateway.sslo-lab-igw"]
+  availability_zone           = var.az
+  depends_on                  = [aws_internet_gateway.sslo-lab-igw]
   tags = {
     Name = "sslo-lab-bigip"
   }
@@ -462,7 +462,7 @@ resource "aws_instance" "bigip" {
 #
 resource "aws_network_interface" "sslo-lab-webserver" {
   private_ips            = ["10.0.3.50"]
-  subnet_id             = "${aws_subnet.bigip-internal-to-webserver.id}"
+  subnet_id             = aws_subnet.bigip-internal-to-webserver.id
   security_groups       = ["${aws_security_group.bigip_to_internal_webserver.id}"]
   tags = {
     Name = "sslo-lab-webserver"
@@ -478,13 +478,13 @@ resource "aws_instance" "web-server" {
   ami                         = "ami-443f6525"  
   instance_type               = "t3a.small"
   key_name                    = var.ec2_key_name  
-  availability_zone           = "${var.az}"
-  depends_on                  = ["aws_internet_gateway.sslo-lab-igw"]
+  availability_zone           = var.az
+  depends_on                  = [aws_internet_gateway.sslo-lab-igw]
   tags = {
     Name = "sslo-lab-web-server"
   }
   network_interface {
-    network_interface_id      = "${aws_network_interface.sslo-lab-webserver.id}"
+    network_interface_id      = aws_network_interface.sslo-lab-webserver.id
     device_index              = 0
   }
 }
@@ -499,7 +499,7 @@ resource "aws_instance" "web-server" {
 resource "aws_subnet" "inspection_out" {
   vpc_id                = module.vpc.vpc_id
   cidr_block            = "10.0.5.0/25"
-  availability_zone     = "${var.az}"
+  availability_zone     = var.az
   tags = {
     Name = "sslo-lab-inspection-out"
     Group_Name = "sslo-lab-inspection-out"
@@ -512,7 +512,7 @@ resource "aws_subnet" "inspection_out" {
 resource "aws_subnet" "inspection_in" {
   vpc_id                = module.vpc.vpc_id
   cidr_block            = "10.0.5.128/25"
-  availability_zone     = "${var.az}"
+  availability_zone     = var.az
   tags = {
     Name = "sslo-lab-inspection-in"
     Group_Name = "sslo-lab-inspection-in"
@@ -523,7 +523,7 @@ resource "aws_subnet" "inspection_in" {
 # Create External(MGMT) Network Interface for Firewall
 #
 resource "aws_network_interface" "sslo-lab-firewall-mgmt" {
-  subnet_id             = "${aws_subnet.jumpbox-to-mgmt.id}"
+  subnet_id             = aws_subnet.jumpbox-to-mgmt.id
   private_ips            = ["10.0.2.50"]
   security_groups       = ["${aws_security_group.jumpbox_to_mgmt.id}"]
   tags = {
@@ -535,7 +535,7 @@ resource "aws_network_interface" "sslo-lab-firewall-mgmt" {
 # Create Inspection Zone Network Interface from BIGIP to Firewall
 #
 resource "aws_network_interface" "sslo-lab-firewall-inspection-in" {
-  subnet_id             = "${aws_subnet.inspection_out.id}"
+  subnet_id             = aws_subnet.inspection_out.id
   private_ips            = ["10.0.5.50"]
   security_groups       = ["${aws_security_group.inspection_zone.id}"]
   tags = {
@@ -547,7 +547,7 @@ resource "aws_network_interface" "sslo-lab-firewall-inspection-in" {
 # Create Inspection Zone Network Interface from Palo to BIG-IP
 #
 resource "aws_network_interface" "sslo-lab-firewall-inspection-out" {
-  subnet_id             = "${aws_subnet.inspection_in.id}"
+  subnet_id             = aws_subnet.inspection_in.id
   private_ips            = ["10.0.5.150"]
   security_groups       = ["${aws_security_group.inspection_zone.id}"]
   tags = {
