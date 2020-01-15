@@ -10,7 +10,9 @@ Terraform code to deploy a SSLO lab in AWS...aka Lab in a Box.
 
 ##Caution, this code deploys actual AWS infrastructure, therefore this will cost $. Deploy at your own peril.##
 
-##For Lab or demostration purposes only do not use this for a productionn environment. Contact F5 Sales team for help##
+##For Lab or demostration purposes only do not use this for a productionn environment.##
+
+##Contact your F5 Sales team for architecture assistance##
 
 This IaC supports a L3 Reverse Proxy Inbound SSLO topology.
 
