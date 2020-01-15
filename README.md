@@ -1,5 +1,5 @@
 
-# terraform-aws-sslo-lab
+# Terraform AWS SSLO Lab
 
 Terraform Version supported = Terraform v0.12.9
 
