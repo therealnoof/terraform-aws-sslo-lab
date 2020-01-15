@@ -55,5 +55,7 @@ This will ensure traffic is directed to the correct students BIGIP.
 # Terraform Commands
 
 terraform plan
+
 terraform apply
+
 terrafrom destroy
