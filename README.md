@@ -32,6 +32,23 @@ The jumpbox is a Windows Server 2019 box with RDS and ADDS roles installed.  Thi
 
 The firewall used is a Palo Alto.  The AMI image has some pre-configurations and static IP addresses for the interfaces as noted in the main.tf. The administrator will have to configure the static routes to support the number of students/bigip's.
 
+# Lab or Deployment Pre-Reqs
 
+1.	You should have some experience or familiarity with AWS, Terraform and Github
+
+2.	You will need to download the Terraform code from Github in order to launch this lab
+
+3.	You should have basic skills to access Linux CLI
+
+4.	You will need to have an AWS Secret Key and Access Key in order to access the AWS environment.  You will need to create this before you deploy.  The Terraform template references the keys in an external file.
+
+5.	You will need to have a key pair created before you launch the EC2 instances.  These are used to initially access the instances in order to configure the admin passwords. 
+
+6.	You will need to configure static routes on the Palo Alto firewall for each student/BIG-IP.  This lab uses a single firewall for the sake of cost savings.  Therefore, static routes are used to direct destination traffic from the VIP to the correct ingress interface IP on the BIG-IP.
+Example: Virtual Routers > Static Routes > Add 
+Destination: <VIP>10.0.4.237/32 , Interface 1/2, Next Hop Address 10.0.6.100 < BIG-IP Self
+This will ensure traffic is directed to the correct students BIGIP.
+                                                                                     
+7.	This lab uses custom AMI’s for the jumpbox and Palo Alto.  These have pre-configurations applied.  Feel free to use whatever images you want.  The custom AMI’s are referenced in the variable.tf file in Terraform.
 
 
