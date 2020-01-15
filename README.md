@@ -1,5 +1,4 @@
-![f5](https://user-images.githubusercontent.com/18743780/72476144-74b9cd80-37ba-11ea-82f3-81d37306b20e.png)
-
+![f5](https://user-images.githubusercontent.com/18743780/72476144-74b9cd80-37ba-11ea-82f3-81d37306b20e.png)![aws](https://user-images.githubusercontent.com/18743780/72476149-76839100-37ba-11ea-90ad-2da2bcfe2ecb.png)
 # Terraform AWS SSLO Lab
 
 Terraform Version supported = Terraform v0.12.9
