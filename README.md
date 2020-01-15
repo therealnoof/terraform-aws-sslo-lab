@@ -38,7 +38,7 @@ The firewall used is a Palo Alto.  The AMI image has some pre-configurations and
 
 # Lab or Deployment Pre-Reqs
 
-1.	You should have some experience or familiarity with AWS, Terraform and Github
+1.	You should have some experience or familiarity with AWS, Terraform, Github, F5, and overall networking.
 
 2.	You will need to download the Terraform code from Github in order to launch this lab and it should go without saying that     you have Terraform installed on your local machine.
 
