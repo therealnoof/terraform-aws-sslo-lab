@@ -59,3 +59,6 @@ terraform plan
 terraform apply
 
 terrafrom destroy
+
+# Topology
+![Screen Shot 2020-01-15 at 4 33 22 PM](https://user-images.githubusercontent.com/18743780/72473482-c4959600-37b4-11ea-8c88-c0fb85eceb9e.png)
