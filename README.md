@@ -1,3 +1,4 @@
+
 # terraform-aws-sslo-lab
 
 Terraform Version supported = Terraform v0.12.9
@@ -51,4 +52,8 @@ This will ensure traffic is directed to the correct students BIGIP.
                                                                                      
 7.	This lab uses custom AMI’s for the jumpbox and Palo Alto.  These have pre-configurations applied.  Feel free to use whatever images you want.  The custom AMI’s are referenced in the variable.tf file in Terraform.
 
+# Terraform Commands
 
+terraform plan
+terraform apply
+terrafrom destroy
