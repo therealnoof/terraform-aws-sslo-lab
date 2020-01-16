@@ -70,5 +70,13 @@ terraform apply
 
 terrafrom destroy
 
+# Lab Guide
+
+The lab guide is for the student and does not provide any pre-reqs like BYOL licensing or IP Addressing.
+
+Therefore it is the lab instructors job to procure BYOL trial licenses and to provide the IP addressing after the       Terraform template has deployed.
+
+Lab guide Link: https://sslo-lab.s3-us-gov-west-1.amazonaws.com/sslo-lab-docs/SSL+Orchestrator+6.0+Lab+Guide+(AWS+Reverse+Proxy+version)+v1.pdf
+
 # Topology
 ![Screen Shot 2020-01-15 at 4 33 22 PM](https://user-images.githubusercontent.com/18743780/72473482-c4959600-37b4-11ea-8c88-c0fb85eceb9e.png)
