@@ -32,7 +32,7 @@ If you need to use a different region then replace the regions in the main.tf
 
 There are variables in the variable.tf set for the availability zones and custom AMI's.
 
-The jumpbox is a Windows Server 2019 box with RDS and ADDS roles installed.  This allows for the creation of unlimited AD users and RDS users.  This allows for a single jump box.
+The jumpbox is a Windows Server 2016 box with RDS and ADDS roles installed.  This allows for the creation of unlimited AD users and RDS users.  This allows for a single jump box.
 
 The firewall used is a Palo Alto.  The AMI image has some pre-configurations and static IP addresses for the interfaces as noted in the main.tf. The administrator will have to configure the static routes to support the number of students/bigip's.
 
@@ -60,7 +60,7 @@ This will ensure traffic is directed to the correct students BIGIP.  If you unfa
                                                                                      
 7.	This lab uses custom AMI’s for the jumpbox and Palo Alto.  These have pre-configurations applied.  Feel free to use whatever images you want.  The custom AMI’s are referenced in the variable.tf file in Terraform.
 
-8.  This lab uses a free NGINX web server from the marketplace, a PAYGO Palo Alto and a BYOL BIG-IP or BIG-IP's.  SSLO is not part of BEST licensing therefore you cannot use PAYGO.  Reach out to your F5 sales team for trial licenses.
+8.  This lab uses a free NGINX web server from the marketplace, a PAYGO Palo Alto, BYOL BIG-IP or BIG-IP's and a Windows Server 2016 instance.  SSLO is not part of BEST licensing therefore you cannot use PAYGO.  Reach out to your F5 sales team for trial licenses.
 
 9.  Jumpbox credentials = f5admin | F5twister!
 
