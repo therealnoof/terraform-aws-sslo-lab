@@ -32,3 +32,22 @@ variable "az" {
   type        = string
   default     = "us-gov-west-1a"
 }
+
+#
+# Jump Box AMI - hard coded
+#
+variable "jumpbox_ami" {
+  description = "Identify the custom AMI"
+  type        = string
+  default     = "ami-cc8aacad"
+}
+
+#
+# Palo Alto AMI - hard coded
+#
+variable "paloalto_ami" {
+  description = "Identify the custom AMI"
+  type        = string
+  default     = "ami-31ac8a50"
+}
+
