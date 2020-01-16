@@ -8,7 +8,7 @@ AWS Provider version supported = v2.43.0
 
 Terraform code to deploy a SSLO lab in AWS...aka Lab in a Box.
 
-##Caution, this code deploys actual AWS infrastructure, therefore this will cost $. Deploy at your own peril.##
+##Caution, this code deploys actual AWS infrastructure, therefore this will cost $. Deploy at your own risk.##
 
 ##For Lab or demostration purposes only do not use this for a production environment.##
 
