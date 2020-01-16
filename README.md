@@ -62,6 +62,8 @@ This will ensure traffic is directed to the correct students BIGIP.  If you unfa
 
 8.  This lab uses a free NGINX web server from the marketplace, a PAYGO Palo Alto and a BYOL BIG-IP or BIG-IP's.  SSLO is not part of BEST licensing therefore you cannot use PAYGO.  Reach out to your F5 sales team for trial licenses.
 
+9.  Jumpbox credentials = f5admin | F5twister!
+
 # Terraform Commands
 
 terraform plan
