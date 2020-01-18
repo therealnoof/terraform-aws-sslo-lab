@@ -57,7 +57,7 @@ The firewall used is a Palo Alto. The reason you ask? Palo Alto's are almost ubi
 Example: Virtual Routers > Static Routes > Add 
 Destination: <VIP>10.0.4.237/32 , Interface 1/2, Next Hop Address 10.0.6.100 < BIG-IP Self
                                                                                      
-This will ensure traffic is directed to the correct students BIGIP.  If you unfamiliar with Palo Alto heres a guide to configure static routes. In addition, the guide in this repo covers the steps to configure.
+This will ensure traffic is directed to the correct students BIGIP.  If you are unfamiliar with Palo Alto heres a guide to configure static routes. In addition, the guide in this repo covers the steps to configure.
     https://docs.paloaltonetworks.com/pan-os/9-0/pan-os-admin/networking/static-routes/configure-a-static-route  
                                                                                      
    Here is a link to download the Palo configuration steps.  Or you can follow via the file "paloalto-configuration" in this repo.
