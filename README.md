@@ -58,7 +58,7 @@ Destination: <VIP>10.0.4.237/32 , Interface 1/2, Next Hop Address 10.0.6.100 < B
 This will ensure traffic is directed to the correct students BIGIP.  If you unfamiliar with Palo Alto heres a guide to configure static routes. 
     https://docs.paloaltonetworks.com/pan-os/9-0/pan-os-admin/networking/static-routes/configure-a-static-route  
                                                                                      
-   Here is a link to download the Palo configuration steps.  Or you can follow via the file "palo-configuration" in this repo.
+   Here is a link to download the Palo configuration steps.  Or you can follow via the file "paloalto-configuration" in this repo.
     https://sslo-lab.s3-us-gov-west-1.amazonaws.com/sslo-lab-docs/Configuring+the+Palo+Alto+Firewall+for+SSLO.docx                                                                              
                                                                                      
                                                                                      
