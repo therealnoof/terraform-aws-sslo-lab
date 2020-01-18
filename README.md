@@ -27,14 +27,14 @@ provider "aws" {
   shared_credentials_file = "~/.aws/credentials"
 }
 
-This template uses AWS Gov region and custom AMI's for the Jumpbox and Firewall.
+This template uses AWS Gov region and a custom AMI for the Jumpbox.
 If you need to use a different region then replace the regions in the main.tf
 
-There are variables in the variable.tf set for the availability zones and custom AMI's.
+There are variables in the variable.tf set for the availability zones and AMI's.
 
 The jumpbox is a Windows Server 2016 box with RDS and ADDS roles installed.  This allows for the creation of unlimited AD users and RDS users.  This allows for a single jump box.
 
-The firewall used is a Palo Alto.  The AMI image has some pre-configurations and static IP addresses for the interfaces as noted in the main.tf. The administrator will have to configure the static routes to support the number of students/bigip's.
+The firewall used is a Palo Alto. The reason you ask? Palo Alto's are almost ubiquitous these days. My customers almost use them exclusively, so I thought use a real world security device.  Feel free to use whatever you want, just change the AMI. The version used is a Bundle 1 and costs around $1.15 per hour. The instructor will have to configure the Palo at first spin up. There is a file in the repo covering the configuration steps or follow the link below to the deployment guide. Its a fairly simple configuration.  I would recommend creating a custom image after configuration to save state.  In addition, I may consider implementing bootstrapping on the firewall in future versions of this lab to this process automagic.
 
 # Lab or Deployment Pre-Reqs
 
@@ -55,14 +55,14 @@ The firewall used is a Palo Alto.  The AMI image has some pre-configurations and
 Example: Virtual Routers > Static Routes > Add 
 Destination: <VIP>10.0.4.237/32 , Interface 1/2, Next Hop Address 10.0.6.100 < BIG-IP Self
                                                                                      
-This will ensure traffic is directed to the correct students BIGIP.  If you unfamiliar with Palo Alto heres a guide to configure static routes. 
+This will ensure traffic is directed to the correct students BIGIP.  If you unfamiliar with Palo Alto heres a guide to configure static routes. In addition, the guide in this repo covers the steps to configure.
     https://docs.paloaltonetworks.com/pan-os/9-0/pan-os-admin/networking/static-routes/configure-a-static-route  
                                                                                      
    Here is a link to download the Palo configuration steps.  Or you can follow via the file "paloalto-configuration" in this repo.
     https://sslo-lab.s3-us-gov-west-1.amazonaws.com/sslo-lab-docs/Configuring+the+Palo+Alto+Firewall+for+SSLO.docx                                                                              
                                                                                      
                                                                                      
-7.	This lab uses a custom AMI for the jump box.  Feel free to use whatever images you want.  The custom AMI’s are referenced in the variable.tf file in Terraform.
+7.	This lab uses a custom AMI for the jump box.  The custom AMI’s are referenced in the variable.tf file in Terraform.
 
 8.  This lab uses a free NGINX web server from the marketplace, a PAYGO Palo Alto, BYOL BIG-IP or BIG-IP's and a Windows Server 2016 instance.  SSLO is not part of BEST licensing therefore you cannot use PAYGO.  Reach out to your F5 sales team for trial licenses.
 
