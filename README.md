@@ -32,7 +32,9 @@ If you need to use a different region then replace the regions in the main.tf
 
 There are variables in the variable.tf set for the availability zones and AMI's.
 
-The jumpbox is a Windows Server 2016 box with RDS and ADDS roles installed.  This allows for the creation of unlimited AD users and RDS users.  This allows for a single jump box.
+The jumpbox is a Windows Server 2016 box with RDS and ADDS roles installed.  This allows for the creation of unlimited AD users and RDS users and allows for a single jump box.
+
+The instructor will need to distribute the key used to intially access the instances.  You can place this key in the Public Documents folder on the desktop or use a s3 bucket.
 
 The firewall used is a Palo Alto. The reason you ask? Palo Alto's are almost ubiquitous these days. My customers almost use them exclusively, so I thought use a real world security device.  Feel free to use whatever you want, just change the AMI. The version used is a Bundle 1 and costs around $1.15 per hour. The instructor will have to configure the Palo at first spin up. There is a file in the repo covering the configuration steps or follow the link below to the deployment guide. Its a fairly simple configuration.  I would recommend creating a custom image after configuration to save state.  In addition, I may consider implementing bootstrapping on the firewall in future versions of this lab to this process automagic.
 
