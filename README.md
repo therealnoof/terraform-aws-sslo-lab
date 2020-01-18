@@ -36,7 +36,7 @@ The jumpbox is a Windows Server 2016 box with RDS and ADDS roles installed.  Thi
 
 The instructor will need to distribute the key used to intially access the instances.  You can place this key in the Public Documents folder on the desktop or use a s3 bucket.
 
-The firewall used is a Palo Alto. The reason you ask? Palo Alto's are almost ubiquitous these days. My customers almost use them exclusively, so I thought let's use a real world security device.  Feel free to use whatever you want, just change the AMI. The version used is a Bundle 1 and costs around $1.15 per hour. The instructor will have to configure the Palo at first spin up. There is a file in the repo covering the configuration steps or follow the link below to the deployment guide. Its a fairly simple configuration.  I would recommend creating a custom image after configuration to save state.  In addition, I may consider implementing bootstrapping on the firewall in future versions of this lab to this process automagic.
+The firewall used is a Palo Alto. The reason you ask? Palo Alto's are almost ubiquitous these days. My customers almost use them exclusively, so I thought let's use a real world security device.  Feel free to use whatever you want, just change the AMI. The version used is a Bundle 1 and costs around $1.15 per hour. The instructor will have to configure the Palo at first spin up. There is a file in the repo covering the configuration steps or follow the link below to the deployment guide. Its a fairly simple configuration.  I would recommend creating a custom image after configuration to save state.  In addition, I may consider implementing bootstrapping on the firewall in future versions of this lab to automagic this process.
 
 # Lab or Deployment Pre-Reqs
 
