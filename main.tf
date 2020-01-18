@@ -1,4 +1,4 @@
-#
+ #
 # Provider Declared
 #
 provider "aws" {
@@ -213,11 +213,19 @@ resource "aws_security_group" "jumpbox_to_bigip_vips" {
 }
 
 #
-# Create EIP Association
+# Create Ephemeral EIP
+#
+resource "aws_eip" "ephemeral" {
+  vpc                         = true
+  public_ipv4_pool            = "amazon"
+}
+
+#
+# Create EIP Association with Jump Box Interface
 #
 resource "aws_eip_association" "eip" {
   network_interface_id        = "${aws_network_interface.sslo-lab-jumpbox-external.id}"
-  allocation_id               = "eipalloc-723ff64f"
+  allocation_id               = "${aws_eip.ephemeral.id}"
 }
 
 #
