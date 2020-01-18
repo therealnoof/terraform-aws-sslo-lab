@@ -37,7 +37,7 @@ variable "az" {
 # Jump Box AMI - hard coded
 #
 variable "jumpbox_ami" {
-  description = "Identify the custom AMI"
+  description = "Custom Public Windows Server AMI with ADDS and RDS roles installed "
   type        = string
   default     = "ami-cc8aacad"
 }
@@ -46,8 +46,8 @@ variable "jumpbox_ami" {
 # Palo Alto AMI - hard coded
 #
 variable "paloalto_ami" {
-  description = "Identify the custom AMI"
+  description = "This AMI is a standard marketplace object. It is suggested to use a custom AMI here"
   type        = string
-  default     = "ami-31ac8a50"
+  default     = "ami-f38fab92"
 }
 
