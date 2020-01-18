@@ -1,1 +1,87 @@
+Configuring the Palo Alto Firewall
 
+VM-Series Next-Generation Firewall Bundle 1
+PANOS supported in this doc: 9.0
+
+This guide is for configuring the firewall after it has been launched in Terraform.  It is recommended to create an image of the instance after configuration.  This way you can call this custom AMI in future Terraform deployments.  This will save you the time of configuring the firewall in the future.  As an alternative the Palo Alto supports boot strapping so you handle the onboarding automatically, however that process is out of scope for this document.  
+
+
+Step 1: SSH into the Instance and Configure the Admin Password
+You should have a way to access the instance either through a jump box or through a public IP.  If you are using the Terraform template the jump box provides access. Follow these commands.
+
+•	Use your ssh key.  ssh -I “yourkey.pem” admin@<ip of firewall>
+•	When logged in: type “configure”
+•	set mgt-config users admin password
+•	commit 
+
+Step 2: Log into the GUI
+•	Confirm GUI login
+
+Step 3: Configure Interface Management Profile
+•	Click Network tab at the top and then find Interface Mgmt on the left pane
+•	Click Add at the bottom of the page
+•	Give the profile a name, since we are creating this profile to allow PING, lets name it "allow ping”
+•	Check the Ping box under Network Services
+•	Click Ok
+
+Step 4: Create a Security Policy
+•	Click Policies at the top of the GUI
+•	Click Add at the bottom
+•	Give the policy a name : Inspection
+•	For Source, Destination, Service/URL Category  select Any
+•	For Actions, make sure Action = Allow and check the box “Log at Session Start” in the Log Setting
+•	Click OK
+•	What we have done is basically created an Any/Any policy for traffic
+
+Step 5: Configure Interfaces
+•	Click on the Network tab at the top
+•	Click on Interfaces on the top left
+•	We will configure interface 1 and 2
+•	Start with ethernet1/1
+•	Change Interface Type to Layer 3
+•	The Advanced tab will open, under Management Profile select the “allow ping” profile.
+•	Click on IPv4 tab, click Add and give the interface an IP.  This will be the ingress from BIG-IP interface so if you are using the Terraform template, this will assign by default the IP of 10.0.5.50.  If you have made changes then make the IP to whatever is assigned.
+Click Ok
+•	Repeat for ethernet1/2 except be sure to add the correct IP.  The template assigns IP 10.0.6.150 to this interface.
+
+Step 6: Configure Zones
+•	Click the Network tab at the top
+•	Click Zones on the top left
+•	Click Add at the bottom
+•	Give the Zone a name : Inspection
+•	Type: Layer 3
+•	Add Interfaces ethernet1/1 and ethernet1/2
+•	Click Ok
+
+Step 7: Configure Virtual Routers
+•	Click the Network tab at the top
+•	Click Virtual Routers on the top left
+•	Click Add at the bottom
+•	Give the Router a name: sslo_lab
+•	Add Interfaces ethernet1/1 and ethernet1/2
+
+Step 8: Configure Static Routes
+•	At this point nearly all of the Palo config is complete.
+The exception is the static routes needed to properly route student traffic.
+Depending on the number of students you will need to configure a static route for each students BIG-IP.  This is fairly easy and an example is below.
+•	Open your virtual router
+•	Click on Static Routes on the left
+•	Give the route a name: labuser1
+•	Destination will be the IP address of the students VIP. Example: 10.0.4.5/32
+•	Interface is the outgoing palo interface to the BIG-IP which is ethernet1/2
+•	Next Hop = IP address
+•	The IP address is the from service self-ip on the BIG-IP. This is named from_PA_to_BIGIP in the lab. This IP will be in the 10.0.6.0/24 range
+•	Click Ok
+
+Step 9:  Commit the config
+•	Find the “Commit” button at the top right
+•	Commit the config
+
+Step 10: Test
+•	After committing the config your interfaces should be up.  If not, check the IP addressing.
+•	Make sure you can ping from the BIG-IP to both interfaces on the Palo Alto
+•	After configuring SSLO, check the Palo monitor logs for PING.  Click Monitor to view
+•	If your SSLO config is failing, first check that traffic is hitting the Palo, if not check the Palo monitor logs, do you see any traffic?  If not, check the SSLO config.  If you do see traffic, check your static routes, its possible you screwed up a route.
+
+
+That concludes the firewall config.
