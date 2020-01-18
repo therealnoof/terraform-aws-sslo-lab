@@ -54,11 +54,14 @@ The firewall used is a Palo Alto.  The AMI image has some pre-configurations and
 6.	You will need to configure static routes on the Palo Alto firewall for each student/BIG-IP.  This lab uses a single firewall for the sake of cost savings.  Therefore, static routes are used to direct destination traffic from the VIP to the correct ingress interface IP on the BIG-IP.
 Example: Virtual Routers > Static Routes > Add 
 Destination: <VIP>10.0.4.237/32 , Interface 1/2, Next Hop Address 10.0.6.100 < BIG-IP Self
-This will ensure traffic is directed to the correct students BIGIP.  If you unfamiliar with Palo Alto heres a guide to configure static routes. FYI, the virtual router has already been configured if you use the custom AMI in the temmplate.
-    https://docs.paloaltonetworks.com/pan-os/9-0/pan-os-admin/networking/static-routes/configure-a-static-route                                                                              
+This will ensure traffic is directed to the correct students BIGIP.  If you unfamiliar with Palo Alto heres a guide to configure static routes. 
+    https://docs.paloaltonetworks.com/pan-os/9-0/pan-os-admin/networking/static-routes/configure-a-static-route  
+                                                                                     
+Here is a link to download the Palo configuration steps.  Or you can follow via the file "palo-configuration" in this repo.
+    https://sslo-lab.s3-us-gov-west-1.amazonaws.com/sslo-lab-docs/Configuring+the+Palo+Alto+Firewall+for+SSLO.docx                                                                              
                                                                                      
                                                                                      
-7.	This lab uses custom AMI’s for the jumpbox and Palo Alto.  These have pre-configurations applied.  Feel free to use whatever images you want.  The custom AMI’s are referenced in the variable.tf file in Terraform.
+7.	This lab uses a custom AMI for the jump box.  Feel free to use whatever images you want.  The custom AMI’s are referenced in the variable.tf file in Terraform.
 
 8.  This lab uses a free NGINX web server from the marketplace, a PAYGO Palo Alto, BYOL BIG-IP or BIG-IP's and a Windows Server 2016 instance.  SSLO is not part of BEST licensing therefore you cannot use PAYGO.  Reach out to your F5 sales team for trial licenses.
 
