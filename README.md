@@ -54,10 +54,11 @@ The firewall used is a Palo Alto.  The AMI image has some pre-configurations and
 6.	You will need to configure static routes on the Palo Alto firewall for each student/BIG-IP.  This lab uses a single firewall for the sake of cost savings.  Therefore, static routes are used to direct destination traffic from the VIP to the correct ingress interface IP on the BIG-IP.
 Example: Virtual Routers > Static Routes > Add 
 Destination: <VIP>10.0.4.237/32 , Interface 1/2, Next Hop Address 10.0.6.100 < BIG-IP Self
+                                                                                     
 This will ensure traffic is directed to the correct students BIGIP.  If you unfamiliar with Palo Alto heres a guide to configure static routes. 
     https://docs.paloaltonetworks.com/pan-os/9-0/pan-os-admin/networking/static-routes/configure-a-static-route  
                                                                                      
-Here is a link to download the Palo configuration steps.  Or you can follow via the file "palo-configuration" in this repo.
+   Here is a link to download the Palo configuration steps.  Or you can follow via the file "palo-configuration" in this repo.
     https://sslo-lab.s3-us-gov-west-1.amazonaws.com/sslo-lab-docs/Configuring+the+Palo+Alto+Firewall+for+SSLO.docx                                                                              
                                                                                      
                                                                                      
