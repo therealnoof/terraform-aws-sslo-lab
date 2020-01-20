@@ -1,4 +1,4 @@
- #
+#
 # Provider Declared
 #
 provider "aws" {
