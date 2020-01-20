@@ -72,6 +72,8 @@ This will ensure traffic is directed to the correct students BIGIP.  If you are 
 
 # Terraform Commands
 
+terraform init
+
 terraform plan
 
 terraform apply
