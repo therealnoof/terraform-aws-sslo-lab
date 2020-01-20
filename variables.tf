@@ -37,7 +37,7 @@ variable "az" {
 # Jump Box AMI - hard coded
 #
 variable "jumpbox_ami" {
-  description = "Custom Public Windows Server AMI with ADDS and RDS roles installed "
+  description = "Custom Public Windows Server AMI with ADDS and RDS roles installed"
   type        = string
   default     = "ami-f9456498"
 }
