@@ -42,7 +42,7 @@ The firewall used is a Palo Alto. The reason you ask? Palo Alto's are almost ubi
 
 1.	You should have some experience or familiarity with AWS, Terraform, Github, F5, and overall networking.
 
-2.	You will need to download the Terraform code from Github in order to launch this lab and it should go without saying that     you have Terraform installed on your local machine.
+2.	You will need to copy or git clone this repo in order to launch this lab and it should go without saying that you have Terraform installed on your local machine.
     https://learn.hashicorp.com/terraform/getting-started/install.html
 
 3.	You should have basic Linux command line skills.
